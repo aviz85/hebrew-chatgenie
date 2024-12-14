@@ -13,6 +13,7 @@ import SettingsDialog from "@/components/SettingsDialog";
 interface Message {
   role: "user" | "model";
   content: string;
+  parts?: { text: string }[];
 }
 
 // You can replace this with your API key for testing
@@ -21,8 +22,8 @@ const HARDCODED_API_KEY = "AIzaSyCAUPJ55jlcwjGufOZACvEpVgdfVapRT_I"
 const formatMessagesForAPI = (messages: Message[]) => {
   return messages.map(msg => ({
     role: msg.role === "user" ? "user" : "model",
-    parts: [{ text: msg.content }]
-  })).slice(-10);
+    parts: msg.parts || [{ text: msg.content }]
+  }));
 };
 
 const Index = () => {
@@ -96,7 +97,12 @@ const Index = () => {
       return;
     }
 
-    const userMessage = { role: "user" as const, content: input };
+    const userMessage: Message = { 
+      role: "user",
+      content: input,
+      parts: [{ text: input }]
+    };
+    
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
@@ -104,8 +110,6 @@ const Index = () => {
     try {
       const { GoogleGenerativeAI } = await import("@google/generative-ai");
       const genAI = new GoogleGenerativeAI(effectiveApiKey);
-      
-      // Configure the model with all settings
       const model = genAI.getGenerativeModel({ 
         model: "gemini-2.0-flash-exp",
         generationConfig: {
@@ -136,7 +140,6 @@ const Index = () => {
 
       const chat = model.startChat({
         history: formatMessagesForAPI(messages),
-        // Move system instruction into chat config
         generationConfig: {
           maxOutputTokens: 1000,
         },
@@ -145,7 +148,11 @@ const Index = () => {
 
       // Start with empty response
       let fullResponse = "";
-      setMessages((prev) => [...prev, { role: "model", content: "" }]);
+      setMessages((prev) => [...prev, { 
+        role: "model", 
+        content: "",
+        parts: [{ text: "" }]
+      }]);
 
       // Stream the response
       const result = await chat.sendMessageStream([{ text: input }]);
@@ -156,7 +163,11 @@ const Index = () => {
         // Update the last message with accumulated response
         setMessages((prev) => [
           ...prev.slice(0, -1),
-          { role: "model", content: fullResponse }
+          { 
+            role: "model", 
+            content: fullResponse,
+            parts: [{ text: fullResponse }]
+          }
         ]);
       }
 
