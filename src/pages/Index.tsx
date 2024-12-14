@@ -8,6 +8,7 @@ import ChatMessage from "@/components/ChatMessage";
 import ApiKeyForm from "@/components/ApiKeyForm";
 import ChatbotPresets from "@/components/ChatbotPresets";
 import { PRESET_INSTRUCTIONS } from "@/components/ChatbotPresets";
+import SettingsDialog from "@/components/SettingsDialog";
 
 interface Message {
   role: "user" | "model";
@@ -48,22 +49,31 @@ const Index = () => {
   }, []);
 
   const handleApiKeyError = (error: any) => {
-    // Check for rate limit error in the error message
-    const isRateLimit = error?.message?.includes?.('quota') || 
-                       error?.message?.includes?.('rate limit') ||
-                       error?.message?.includes?.('429');
+    // Common rate limit indicators from Gemini API
+    const isRateLimit = 
+      error?.message?.toLowerCase?.().includes('quota') ||
+      error?.message?.toLowerCase?.().includes('rate limit') ||
+      error?.message?.toLowerCase?.().includes('429') ||
+      error?.status === 429 || // HTTP 429 Too Many Requests
+      error?.details?.some?.((d: any) => 
+        d?.reason === 'RATE_LIMIT_EXCEEDED' || 
+        d?.reason === 'QUOTA_EXCEEDED'
+      );
                        
     toast({
-      title: "שגיאה",
+      title: isRateLimit ? "מגבלת שימוש" : "שגיאה",
       description: isRateLimit 
-        ? "הגעת למגבלת השימוש. אנא הכנס מפתח API משלך"
-        : "לא הצלחנו לקבל תשובה מ-Gemini",
+        ? "הגעת למגבלת השימוש היומית. אנא הכנס מפתח API משלך"
+        : `שגיאה: ${error?.message || 'לא הצלחנו לקבל תשובה מ-Gemini'}`,
       variant: "destructive",
-      action: isRateLimit && !apiKey ? (
+      action: isRateLimit ? (
         <Button 
           variant="outline" 
           size="sm" 
-          onClick={() => setApiKey(null)}
+          onClick={() => {
+            setApiKey(null);
+            localStorage.removeItem("GEMINI_API_KEY");
+          }}
         >
           הכנס מפתח API
         </Button>
@@ -131,6 +141,10 @@ const Index = () => {
         <Card className="mb-4 p-4 h-[calc(100vh-2rem)]">
           <div className="flex justify-between items-center mb-4">
             <ChatbotPresets onPresetChange={setCurrentPreset} />
+            <SettingsDialog 
+              onApiKeySet={setApiKey} 
+              currentApiKey={apiKey} 
+            />
           </div>
           <div className="space-y-4 mb-4 h-[calc(100vh-12rem)] overflow-y-auto" dir="rtl">
             {messages.map((message, index) => (
