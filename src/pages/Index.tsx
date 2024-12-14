@@ -38,38 +38,23 @@ const Index = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const chatContainer = document.querySelector('.chat-container');
+    chatContainer?.scrollTo({
+      top: chatContainer.scrollHeight,
+      behavior: 'smooth'
+    });
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]); // Scroll when messages update
-
-  // Focus input on mount
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
-  // Add useEffect to focus input when preset changes
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, [currentPreset]); // Focus when preset changes
-
-  // Add useEffect for preset changes
-  useEffect(() => {
-    setTimeout(() => {
+    const timeout = setTimeout(() => {
       inputRef.current?.focus();
     }, 100);
-  }, [currentPreset]);
+    return () => clearTimeout(timeout);
+  }, [currentPreset, messages.length]);
 
-  // Add useEffect for focus after clear
   useEffect(() => {
-    if (messages.length === 0) {
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 100);
-    }
-  }, [messages.length]);
+    scrollToBottom();
+  }, [messages]);
 
   const handleApiKeyError = (error: any) => {
     // Common rate limit indicators from Gemini API
@@ -194,6 +179,7 @@ const Index = () => {
             };
             return newMessages;
           });
+          scrollToBottom();
         }
       }
 
@@ -264,7 +250,10 @@ const Index = () => {
               />
             </div>
           </div>
-          <div className="space-y-4 mb-4 h-[calc(100vh-12rem)] overflow-y-auto" dir="rtl">
+          <div 
+            className="space-y-4 mb-4 h-[calc(100vh-12rem)] overflow-y-auto chat-container" 
+            dir="rtl"
+          >
             {messages.map((message, index) => (
               <ChatMessage 
                 key={index} 
