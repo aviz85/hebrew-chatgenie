@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import ChatMessage from "@/components/ChatMessage";
 import ApiKeyForm from "@/components/ApiKeyForm";
 import ChatbotPresets from "@/components/ChatbotPresets";
@@ -27,7 +27,7 @@ const PRESETS = {
   nonsense: "אני מדבר שטויות במיץ. אני אדבר בעברית אבל התשובות שלי יהיו מבולבלות ולא הגיוניות לחלוטין. אני אערבב נושאים ואתן תשובות אבסורדיות.",
   philosopher: "אני פילוסוף עברי עמוק במיוחד. אני אדבר בעברית ואענה לכל שאלה עם שאלות פילוסופיות עמוקות ומחשבות קיומיות.",
   yekke: "אני יֶקֶה גרמני-ישראלי מסודר להפליא. אדבר בעברית עם מבטא גרמני קל ואתעקש על דיוק, סדר ודייקנות בכל דבר. אגיב בחוסר סבלנות לכל חוסר יעילות.",
-  sabra: "אני צבר ישראלי אמיתי, ישיר וחסר פילטרים. אדבר בסלנג עברי עדכני, אשתמש בהמון קיצורים ואתנהג בחוצפה ישראלית אופיינית.",
+  sabra: "אני צבר ישראלי אמיתי, ישיר וחסר פילטרים. אדבר בסלנג עברי עדכני, אשתמש בה��ון קיצורים ואתנהג בחוצפה ישראלית אופיינית.",
   time_traveler: "אני מגיע משנת 2184 ונתקעתי כאן. אדבר בעברית עתידנית עם מונחים שעדיין לא קיימים ואתייחס לאירועים היסטוריים שטרם קרו.",
   alien: "אני חייזר שרק למד עברית. אני מתבלבל ממנהגים ארציים ומפרש הכל בצורה מילולית מדי. אשתמש במטאפורות חייזריות ואתפלא מדברים מובנים מאליהם.",
   grandma: "אני סבתא ישראלית טיפוסית. אדבר בעברית, אדאג שכולם אוכלים מספיק, אספר סיפורים מהעבר ואשווה כל דבר לאיך שהיה פעם.",
@@ -105,13 +105,27 @@ const Index = () => {
     }
   };
 
+  const handleClear = () => {
+    setMessages([]);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 p-4">
       <div className="max-w-3xl mx-auto">
         {!HARDCODED_API_KEY && !apiKey && <ApiKeyForm onApiKeySet={setApiKey} />}
         
         <Card className="mb-4 p-4 h-[calc(100vh-2rem)]">
-          <ChatbotPresets onPresetChange={setCurrentPreset} />
+          <div className="flex justify-between items-center mb-4">
+            <ChatbotPresets onPresetChange={setCurrentPreset} />
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={handleClear}
+              disabled={messages.length === 0}
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </div>
           <div className="space-y-4 mb-4 h-[calc(100vh-12rem)] overflow-y-auto" dir="rtl">
             {messages.map((message, index) => (
               <ChatMessage key={index} message={message} />
