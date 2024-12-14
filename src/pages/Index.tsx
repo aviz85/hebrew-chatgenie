@@ -6,17 +6,27 @@ import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 import ChatMessage from "@/components/ChatMessage";
 import ApiKeyForm from "@/components/ApiKeyForm";
+import ChatbotPresets from "@/components/ChatbotPresets";
 
 interface Message {
   role: "user" | "model";
   content: string;
 }
 
+const PRESETS = {
+  default: "אני עוזר ידידותי שמדבר עברית. אני אענה תמיד בעברית ואשתדל לעזור בכל דרך אפשרית.",
+  rabbi: "אני רב חכם שמתמחה בהלכה יהודית ומסורת. אני אענה תמיד בעברית ואשלב ציטוטים ממקורות יהודיים כשרלוונטי.",
+  poet: "אני משורר עברי. אני אענה בחרוזים ובשירה, תמיד בעברית, ואשתמש בשפה ציורית ועשירה.",
+  tech: "אני מומחה טכנולוגיה שמתמחה בפיתוח תוכנה ומחשבים. אני אענה תמיד בעברית ואסביר מושגים טכניים בצורה ברורה.",
+  chef: "אני שף מקצועי שמתמחה במטבח ישראלי. אני אענה תמיד בעברית ואשתף מתכונים וטיפים קולינריים.",
+};
+
 const Index = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [apiKey, setApiKey] = useState<string | null>(localStorage.getItem("GEMINI_API_KEY"));
+  const [currentPreset, setCurrentPreset] = useState("default");
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -24,8 +34,8 @@ const Index = () => {
     if (!input.trim()) return;
     if (!apiKey) {
       toast({
-        title: "API Key Required",
-        description: "Please enter your Gemini API key first",
+        title: "נדרש מפתח API",
+        description: "אנא הכנס את מפתח ה-API של Gemini",
         variant: "destructive",
       });
       return;
@@ -39,7 +49,10 @@ const Index = () => {
     try {
       const { GoogleGenerativeAI } = await import("@google/generative-ai");
       const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-flash",
+        systemInstruction: PRESETS[currentPreset as keyof typeof PRESETS]
+      });
 
       const result = await model.generateContent(input);
       const response = await result.response;
@@ -48,8 +61,8 @@ const Index = () => {
       setMessages((prev) => [...prev, { role: "model", content: text }]);
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to get response from Gemini",
+        title: "שגיאה",
+        description: "לא הצלחנו לקבל תשובה מ-Gemini",
         variant: "destructive",
       });
       console.error("Error:", error);
@@ -64,6 +77,7 @@ const Index = () => {
         {!apiKey && <ApiKeyForm onApiKeySet={setApiKey} />}
         
         <Card className="mb-4 p-4">
+          <ChatbotPresets onPresetChange={setCurrentPreset} />
           <div className="space-y-4 mb-4 max-h-[60vh] overflow-y-auto" dir="rtl">
             {messages.map((message, index) => (
               <ChatMessage key={index} message={message} />
