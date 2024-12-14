@@ -21,8 +21,8 @@ const HARDCODED_API_KEY = "AIzaSyCAUPJ55jlcwjGufOZACvEpVgdfVapRT_I"
 const formatMessagesForAPI = (messages: Message[]) => {
   return messages.map(msg => ({
     role: msg.role === "user" ? "user" : "model",
-    parts: msg.content
-  })).slice(-10); // Keep last 10 messages for context window
+    parts: [{ text: msg.content }]
+  })).slice(-10);
 };
 
 const Index = () => {
@@ -106,7 +106,6 @@ const Index = () => {
       const genAI = new GoogleGenerativeAI(effectiveApiKey);
       const model = genAI.getGenerativeModel({ 
         model: "gemini-2.0-flash-exp",
-        systemInstruction: PRESET_INSTRUCTIONS[currentPreset as keyof typeof PRESET_INSTRUCTIONS]
       });
 
       const chat = model.startChat({
@@ -116,7 +115,7 @@ const Index = () => {
         },
       });
 
-      const result = await chat.sendMessage(input);
+      const result = await chat.sendMessage([{ text: input }]);
       const text = result.response.text();
 
       setMessages((prev) => [...prev, { role: "model", content: text }]);
