@@ -1,8 +1,16 @@
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import { useEffect, useState } from 'react';
 import { cn } from "@/lib/utils";
 import { Loader2, Copy, Check } from 'lucide-react';
-import { useState } from 'react';
+import dynamic from 'next/dynamic';
+
+const ReactMarkdown = dynamic(() => import('react-markdown'), {
+  loading: () => <div>Loading...</div>,
+  ssr: false
+});
+
+const remarkGfm = dynamic(() => import('remark-gfm'), {
+  ssr: false
+});
 
 interface ChatMessageProps {
   message: {
