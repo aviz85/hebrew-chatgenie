@@ -36,6 +36,20 @@ const Index = () => {
   const [currentPreset, setCurrentPreset] = useState("default");
   const { toast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]); // Scroll when messages update
+
+  // Focus input on mount
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,19 +97,14 @@ const Index = () => {
     }
   };
 
-  // Focus input on mount
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 p-4">
       <div className="max-w-3xl mx-auto">
         {!HARDCODED_API_KEY && !apiKey && <ApiKeyForm onApiKeySet={setApiKey} />}
         
-        <Card className="mb-4 p-4">
+        <Card className="mb-4 p-4 h-[calc(100vh-2rem)]">
           <ChatbotPresets onPresetChange={setCurrentPreset} />
-          <div className="space-y-4 mb-4 max-h-[60vh] overflow-y-auto" dir="rtl">
+          <div className="space-y-4 mb-4 h-[calc(100vh-12rem)] overflow-y-auto" dir="rtl">
             {messages.map((message, index) => (
               <ChatMessage key={index} message={message} />
             ))}
@@ -104,6 +113,7 @@ const Index = () => {
                 <Loader2 className="w-6 h-6 animate-spin" />
               </div>
             )}
+            <div ref={messagesEndRef} /> {/* Scroll anchor */}
           </div>
 
           <form onSubmit={handleSubmit} className="flex gap-2" dir="rtl">
