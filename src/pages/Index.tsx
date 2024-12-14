@@ -13,7 +13,7 @@ import SettingsDialog from "@/components/SettingsDialog";
 interface Message {
   role: "user" | "model";
   content: string;
-  parts?: { text: string }[];
+  parts: { text: string }[];
 }
 
 // You can replace this with your API key for testing
@@ -22,7 +22,7 @@ const HARDCODED_API_KEY = "AIzaSyCAUPJ55jlcwjGufOZACvEpVgdfVapRT_I"
 const formatMessagesForAPI = (messages: Message[]) => {
   return messages.map(msg => ({
     role: msg.role === "user" ? "user" : "model",
-    parts: msg.parts || [{ text: msg.content }]
+    parts: [{ text: msg.content }]
   }));
 };
 
@@ -138,44 +138,35 @@ const Index = () => {
         ],
       });
 
-      const chat = model.startChat({
-        history: formatMessagesForAPI(messages),
-        generationConfig: {
-          maxOutputTokens: 1000,
-        },
-        safetySettings: model.safetySettings,
-      });
+      const chat = model.startChat();
 
-      // Start with empty response
       let fullResponse = "";
-      setMessages((prev) => [...prev, { 
+      const emptyMessage: Message = { 
         role: "model", 
         content: "",
         parts: [{ text: "" }]
-      }]);
+      };
+      setMessages((prev) => [...prev, emptyMessage]);
 
-      // Stream the response
       const result = await chat.sendMessageStream([{ text: input }]);
+      
       for await (const chunk of result.stream) {
         const chunkText = chunk.text();
         fullResponse += chunkText;
         
-        // Update the last message with accumulated response
-        setMessages((prev) => [
-          ...prev.slice(0, -1),
-          { 
-            role: "model", 
-            content: fullResponse,
-            parts: [{ text: fullResponse }]
-          }
-        ]);
+        const updatedMessage: Message = { 
+          role: "model", 
+          content: fullResponse,
+          parts: [{ text: fullResponse }]
+        };
+        
+        setMessages((prev) => [...prev.slice(0, -1), updatedMessage]);
       }
 
       inputRef.current?.focus();
     } catch (error) {
       handleApiKeyError(error);
       console.error("Error:", error);
-      // Remove the empty model message if there was an error
       setMessages((prev) => prev.slice(0, -1));
     } finally {
       setIsLoading(false);
