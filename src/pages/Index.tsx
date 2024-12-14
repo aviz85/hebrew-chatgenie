@@ -104,25 +104,68 @@ const Index = () => {
     try {
       const { GoogleGenerativeAI } = await import("@google/generative-ai");
       const genAI = new GoogleGenerativeAI(effectiveApiKey);
+      
+      // Configure the model with all settings
       const model = genAI.getGenerativeModel({ 
         model: "gemini-2.0-flash-exp",
+        generationConfig: {
+          maxOutputTokens: 1000,
+          temperature: 0.7,
+          topP: 0.8,
+          topK: 40,
+        },
+        safetySettings: [
+          {
+            category: "HARM_CATEGORY_HARASSMENT",
+            threshold: "BLOCK_NONE",
+          },
+          {
+            category: "HARM_CATEGORY_HATE_SPEECH",
+            threshold: "BLOCK_NONE",
+          },
+          {
+            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+            threshold: "BLOCK_NONE",
+          },
+          {
+            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+            threshold: "BLOCK_NONE",
+          },
+        ],
       });
 
       const chat = model.startChat({
         history: formatMessagesForAPI(messages),
+        // Move system instruction into chat config
         generationConfig: {
           maxOutputTokens: 1000,
         },
+        safetySettings: model.safetySettings,
       });
 
-      const result = await chat.sendMessage([{ text: input }]);
-      const text = result.response.text();
+      // Start with empty response
+      let fullResponse = "";
+      setMessages((prev) => [...prev, { role: "model", content: "" }]);
 
-      setMessages((prev) => [...prev, { role: "model", content: text }]);
+      // Stream the response
+      const result = await chat.sendMessageStream([{ text: input }]);
+      for await (const chunk of result.stream) {
+        const chunkText = chunk.text();
+        fullResponse += chunkText;
+        
+        // Update the last message with accumulated response
+        setMessages((prev) => [
+          ...prev.slice(0, -1),
+          { role: "model", content: fullResponse }
+        ]);
+      }
+
       inputRef.current?.focus();
     } catch (error) {
       handleApiKeyError(error);
       console.error("Error:", error);
+      // Remove the empty model message if there was an error
+      setMessages((prev) => prev.slice(0, -1));
     } finally {
       setIsLoading(false);
     }
