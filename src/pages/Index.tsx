@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { Loader2, Trash2 } from "lucide-react";
+import { Loader2, Trash2, Settings, Download } from "lucide-react";
 import ChatMessage from "@/components/ChatMessage";
 import ApiKeyForm from "@/components/ApiKeyForm";
 import ChatbotPresets from "@/components/ChatbotPresets";
@@ -173,15 +173,18 @@ const Index = () => {
       
       for await (const chunk of result.stream) {
         const chunkText = chunk.text();
-        fullResponse += chunkText;
-        
-        const updatedMessage: Message = { 
-          role: "model", 
-          content: fullResponse,
-          parts: [{ text: fullResponse }]
-        };
-        
-        setMessages((prev) => [...prev.slice(0, -1), updatedMessage]);
+        if (chunkText) {
+          fullResponse += chunkText;
+          setMessages(prev => {
+            const newMessages = [...prev];
+            newMessages[newMessages.length - 1] = {
+              role: "model",
+              content: fullResponse,
+              parts: [{ text: fullResponse }]
+            };
+            return newMessages;
+          });
+        }
       }
 
       inputRef.current?.focus();
@@ -205,6 +208,23 @@ const Index = () => {
     }, 100);
   };
 
+  const handleExport = () => {
+    const conversation = messages.map(msg => {
+      const role = msg.role === "user" ? "שאלה" : "תשובה";
+      return `${role}:\n${msg.content}\n\n`;
+    }).join('');
+    
+    const blob = new Blob([conversation], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'conversation.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 p-4">
       <div className="max-w-3xl mx-auto">
@@ -213,21 +233,31 @@ const Index = () => {
         <Card className="mb-4 p-4 h-[calc(100vh-2rem)]">
           <div className="flex justify-between items-center mb-4">
             <ChatbotPresets onPresetChange={handlePresetChange} />
-            <SettingsDialog 
-              onApiKeySet={setApiKey} 
-              currentApiKey={apiKey} 
-            />
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleExport}
+                title="ייצא שיחה"
+                disabled={messages.length === 0}
+              >
+                <Download className="h-4 w-4" />
+              </Button>
+              <SettingsDialog 
+                onApiKeySet={setApiKey} 
+                currentApiKey={apiKey} 
+              />
+            </div>
           </div>
           <div className="space-y-4 mb-4 h-[calc(100vh-12rem)] overflow-y-auto" dir="rtl">
             {messages.map((message, index) => (
-              <ChatMessage key={index} message={message} />
+              <ChatMessage 
+                key={index} 
+                message={message} 
+                isLoading={isLoading && index === messages.length - 1}
+              />
             ))}
-            {isLoading && (
-              <div className="flex justify-start">
-                <Loader2 className="w-6 h-6 animate-spin" />
-              </div>
-            )}
-            <div ref={messagesEndRef} /> {/* Scroll anchor */}
+            <div ref={messagesEndRef} />
           </div>
 
           <form onSubmit={handleSubmit} className="flex gap-2" dir="rtl">
