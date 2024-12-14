@@ -7,6 +7,7 @@ import { Loader2, Trash2 } from "lucide-react";
 import ChatMessage from "@/components/ChatMessage";
 import ApiKeyForm from "@/components/ApiKeyForm";
 import ChatbotPresets from "@/components/ChatbotPresets";
+import { PRESET_INSTRUCTIONS } from "@/components/ChatbotPresets";
 
 interface Message {
   role: "user" | "model";
@@ -15,26 +16,6 @@ interface Message {
 
 // You can replace this with your API key for testing
 const HARDCODED_API_KEY = "AIzaSyCAUPJ55jlcwjGufOZACvEpVgdfVapRT_I"
-
-const PRESETS = {
-  default: "אני עוזר ידידותי שמדבר עברית. אני אענה תמיד בעברית ואשתדל לעזור בכל דרך אפשרית.",
-  rabbi: "אני רב חכם שמתמחה בהלכה יהודית ומסורת. אני אענה תמיד בעברית ואשלב ציטוטים ממקורות יהודיים כשרלוונטי.",
-  poet: "אני משורר עברי. אני אענה בחרוזים ובשירה, תמיד בעברית, ואשתמש בשפה ציורית ועשירה.",
-  tech: "אני מומחה טכנולוגיה שמתמחה בפיתוח תוכנה ומחשבים. אני אענה תמיד בעברית ואסביר מושגים טכניים בצורה ברורה.",
-  chef: "אני שף מקצועי שמתמחה במטבח ישראלי. אני אענה תמיד בעברית ואשתף מתכונים וטיפים קולינריים.",
-  coach: "אני מאמן מוטיבציוני נלהב! אני אדבר תמיד בעברית ואעזור לך להגשים את החלומות שלך עם המון אנרגיה חיובית ומוטיבציה! כל משפט שלי יסתיים בסימן קריאה!",
-  sarcastic: "אני הסרקסטיקן הכי ציני בעולם. אני אדבר בעברית ואגיב לכל דבר בציניות ובאירוניה מושלמת. אני מומחה בלגלגל על כל דבר.",
-  nonsense: "אני מדבר שטויות במיץ. אני אדבר בעברית אבל התשובות שלי יהיו מבולבלות ולא הגיוניות לחלוטין. אני אערבב נושאים ואתן תשובות אבסורדיות.",
-  philosopher: "אני פילוסוף עברי עמוק במיוחד. אני אדבר בעברית ואענה לכל שאלה עם שאלות פילוסופיות עמוקות ממחשבות קיומיות.",
-  yekke: "אני יֶקֶה גרמני-ישראלי מסודר להפליא. אדבר בעברית עם מבטא גרמני קל ואתעקש על דיוק, סדר ודייקנות בכל דבר. אגיב בחוסר סבלנות לכל חוסר יעילות.",
-  sabra: "אני צבר ישראלי אמיתי, ישיר וחסר פילטרים. אדבר בסלנג עברי עדכני, אשתמש בהמון קיצורים ואתנהג בחוצפה ישראלית אופיינית.",
-  time_traveler: "אני מגיע משנת 2184 ונתקעתי כאן. אדבר בעברית עתידנית עם מונחים שעדיין לא קיימים ואתייחס לאירועים היסטוריים שטרם קרו.",
-  alien: "אני חייזר שרק למד עברית. אני מתבלבל ממנהגים ארציים ומפרש הכל בצורה מילולית מדי. אשתמש במטאפורות חייזריות ואתפלא מדברים מובנים מאליהם.",
-  grandma: "אני סבתא ישראלית טיפוסית. אדבר בעברית, אדאג שכולם אוכלים מספיק, אספר סיפורים מהעבר ואשווה כל דבר לאיך שהיה פעם.",
-  startup: "אני יזם הייטק ישראלי נלהב. אדבר במונחי סטארטאפ, אשלב אנגלית בעברית, אראה בכל דבר הזדמנות עסקית ואומר 'אקזיט' לפחות פעם בכל משפט.",
-  archaeologist: "אני ארכיאולוג ישראלי. אקשר כל נושא לממצאים היסטוריים מהארץ, אצטט מקורות עתיקים ואתלהב מכל פיסת היסטוריה.",
-  kibbutznik: "אני חבר קיבוץ ותיק. אדבר בעברית של פעם, אזכיר את חדר האוכל בכל הזדמנות, אדבר על החיים השיתופיים ואתגעגע לימי הלינה המשותפת."
-};
 
 const formatMessagesForAPI = (messages: Message[]) => {
   return messages.map(msg => ({
@@ -66,6 +47,30 @@ const Index = () => {
     inputRef.current?.focus();
   }, []);
 
+  const handleApiKeyError = (error: any) => {
+    // Check for rate limit error in the error message
+    const isRateLimit = error?.message?.includes?.('quota') || 
+                       error?.message?.includes?.('rate limit') ||
+                       error?.message?.includes?.('429');
+                       
+    toast({
+      title: "שגיאה",
+      description: isRateLimit 
+        ? "הגעת למגבלת השימוש. אנא הכנס מפתח API משלך"
+        : "לא הצלחנו לקבל תשובה מ-Gemini",
+      variant: "destructive",
+      action: isRateLimit && !apiKey ? (
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={() => setApiKey(null)}
+        >
+          הכנס מפתח API
+        </Button>
+      ) : undefined
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -91,7 +96,7 @@ const Index = () => {
       const genAI = new GoogleGenerativeAI(effectiveApiKey);
       const model = genAI.getGenerativeModel({ 
         model: "gemini-2.0-flash-exp",
-        systemInstruction: PRESETS[currentPreset as keyof typeof PRESETS]
+        systemInstruction: PRESET_INSTRUCTIONS[currentPreset as keyof typeof PRESET_INSTRUCTIONS]
       });
 
       const chat = model.startChat({
@@ -107,11 +112,7 @@ const Index = () => {
       setMessages((prev) => [...prev, { role: "model", content: text }]);
       inputRef.current?.focus();
     } catch (error) {
-      toast({
-        title: "שגיאה",
-        description: "לא הצלחנו לקבל תשובה מ-Gemini",
-        variant: "destructive",
-      });
+      handleApiKeyError(error);
       console.error("Error:", error);
     } finally {
       setIsLoading(false);
