@@ -54,6 +54,13 @@ const Index = () => {
     inputRef.current?.focus();
   }, [currentPreset]); // Focus when preset changes
 
+  // Add useEffect for preset changes
+  useEffect(() => {
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
+  }, [currentPreset]);
+
   const handleApiKeyError = (error: any) => {
     // Common rate limit indicators from Gemini API
     const isRateLimit = 
@@ -193,7 +200,9 @@ const Index = () => {
 
   const handlePresetChange = (preset: string) => {
     setCurrentPreset(preset);
-    inputRef.current?.focus();
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
   };
 
   return (
