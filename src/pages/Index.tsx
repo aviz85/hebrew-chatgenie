@@ -49,6 +49,11 @@ const Index = () => {
     inputRef.current?.focus();
   }, []);
 
+  // Add useEffect to focus input when preset changes
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [currentPreset]); // Focus when preset changes
+
   const handleApiKeyError = (error: any) => {
     // Common rate limit indicators from Gemini API
     const isRateLimit = 
@@ -112,6 +117,7 @@ const Index = () => {
       const genAI = new GoogleGenerativeAI(effectiveApiKey);
       const model = genAI.getGenerativeModel({ 
         model: "gemini-2.0-flash-exp",
+        systemInstruction: PRESET_INSTRUCTIONS[currentPreset as keyof typeof PRESET_INSTRUCTIONS],
         generationConfig: {
           maxOutputTokens: 1000,
           temperature: 0.7,
@@ -138,7 +144,15 @@ const Index = () => {
         ],
       });
 
-      const chat = model.startChat();
+      const chat = model.startChat({
+        history: messages.slice(-10).map(msg => ({
+          role: msg.role === "user" ? "user" : "model",
+          parts: [{ text: msg.content }]
+        })),
+        generationConfig: {
+          maxOutputTokens: 1000,
+        },
+      });
 
       let fullResponse = "";
       const emptyMessage: Message = { 
@@ -177,6 +191,11 @@ const Index = () => {
     setMessages([]);
   };
 
+  const handlePresetChange = (preset: string) => {
+    setCurrentPreset(preset);
+    inputRef.current?.focus();
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 p-4">
       <div className="max-w-3xl mx-auto">
@@ -184,7 +203,7 @@ const Index = () => {
         
         <Card className="mb-4 p-4 h-[calc(100vh-2rem)]">
           <div className="flex justify-between items-center mb-4">
-            <ChatbotPresets onPresetChange={setCurrentPreset} />
+            <ChatbotPresets onPresetChange={handlePresetChange} />
             <SettingsDialog 
               onApiKeySet={setApiKey} 
               currentApiKey={apiKey} 
