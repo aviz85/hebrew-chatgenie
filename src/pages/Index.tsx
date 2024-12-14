@@ -19,15 +19,15 @@ const HARDCODED_API_KEY = "AIzaSyCAUPJ55jlcwjGufOZACvEpVgdfVapRT_I"
 const PRESETS = {
   default: "אני עוזר ידידותי שמדבר עברית. אני אענה תמיד בעברית ואשתדל לעזור בכל דרך אפשרית.",
   rabbi: "אני רב חכם שמתמחה בהלכה יהודית ומסורת. אני אענה תמיד בעברית ואשלב ציטוטים ממקורות יהודיים כשרלוונטי.",
-  poet: "אני משורר עברי. אני אענה בחרוזים ובשירה, תמיד בעברית, ואשתמש בשפה ציורית ועשירה.",
+  poet: "אני משורר עברי. אני אענה בחרוזים ובשירה, תמיד בעברית, ��אשתמש בשפה ציורית ועשירה.",
   tech: "אני מומחה טכנולוגיה שמתמחה בפיתוח תוכנה ומחשבים. אני אענה תמיד בעברית ואסביר מושגים טכניים בצורה ברורה.",
   chef: "אני שף מקצועי שמתמחה במטבח ישראלי. אני אענה תמיד בעברית ואשתף מתכונים וטיפים קולינריים.",
   coach: "אני מאמן מוטיבציוני נלהב! אני אדבר תמיד בעברית ואעזור לך להגשים את החלומות שלך עם המון אנרגיה חיובית ומוטיבציה! כל משפט שלי יסתיים בסימן קריאה!",
   sarcastic: "אני הסרקסטיקן הכי ציני בעולם. אני אדבר בעברית ואגיב לכל דבר בציניות ובאירוניה מושלמת. אני מומחה בלגלגל על כל דבר.",
   nonsense: "אני מדבר שטויות במיץ. אני אדבר בעברית אבל התשובות שלי יהיו מבולבלות ולא הגיוניות לחלוטין. אני אערבב נושאים ואתן תשובות אבסורדיות.",
-  philosopher: "אני פילוסוף עברי עמוק במיוחד. אני אדבר בעברית ואענה לכל שאלה עם שאלות פילוסופיות עמוקות ומחשבות קיומיות.",
+  philosopher: "אני פילוסוף עברי עמוק במיוחד. אני אדבר בעברית ואענה לכל שאלה עם שאלות פילוסופיות עמוקות ומחשבות ק��ומיות.",
   yekke: "אני יֶקֶה גרמני-ישראלי מסודר להפליא. אדבר בעברית עם מבטא גרמני קל ואתעקש על דיוק, סדר ודייקנות בכל דבר. אגיב בחוסר סבלנות לכל חוסר יעילות.",
-  sabra: "אני צבר ישראלי אמיתי, ישיר וחסר פילטרים. אדבר בסלנג עברי עדכני, אשתמש בה��ון קיצורים ואתנהג בחוצפה ישראלית אופיינית.",
+  sabra: "אני צבר ישראלי אמיתי, ישיר וחסר פילטרים. אדבר בסלנג עברי עדכני, אשתמש בהון קיצורים ואתנהג בחוצפה ישראלית אופיינית.",
   time_traveler: "אני מגיע משנת 2184 ונתקעתי כאן. אדבר בעברית עתידנית עם מונחים שעדיין לא קיימים ואתייחס לאירועים היסטוריים שטרם קרו.",
   alien: "אני חייזר שרק למד עברית. אני מתבלבל ממנהגים ארציים ומפרש הכל בצורה מילולית מדי. אשתמש במטאפורות חייזריות ואתפלא מדברים מובנים מאליהם.",
   grandma: "אני סבתא ישראלית טיפוסית. אדבר בעברית, אדאג שכולם אוכלים מספיק, אספר סיפורים מהעבר ואשווה כל דבר לאיך שהיה פעם.",
@@ -83,7 +83,7 @@ const Index = () => {
       const { GoogleGenerativeAI } = await import("@google/generative-ai");
       const genAI = new GoogleGenerativeAI(effectiveApiKey);
       const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
+        model: "gemini-2.0-flash-exp",
         systemInstruction: PRESETS[currentPreset as keyof typeof PRESETS]
       });
 
@@ -115,17 +115,6 @@ const Index = () => {
         {!HARDCODED_API_KEY && !apiKey && <ApiKeyForm onApiKeySet={setApiKey} />}
         
         <Card className="mb-4 p-4 h-[calc(100vh-2rem)]">
-          <div className="flex justify-between items-center mb-4">
-            <ChatbotPresets onPresetChange={setCurrentPreset} />
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={handleClear}
-              disabled={messages.length === 0}
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          </div>
           <div className="space-y-4 mb-4 h-[calc(100vh-12rem)] overflow-y-auto" dir="rtl">
             {messages.map((message, index) => (
               <ChatMessage key={index} message={message} />
@@ -147,6 +136,14 @@ const Index = () => {
               className="text-right"
               disabled={!HARDCODED_API_KEY && !apiKey}
             />
+            <Button 
+              variant="destructive"
+              type="button"
+              onClick={handleClear}
+              disabled={messages.length === 0}
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
             <Button type="submit" disabled={isLoading || (!HARDCODED_API_KEY && !apiKey)}>
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "שלח"}
             </Button>
