@@ -13,26 +13,36 @@ interface Message {
   content: string;
 }
 
+// You can replace this with your API key for testing
+const HARDCODED_API_KEY = "";
+
 const PRESETS = {
   default: "אני עוזר ידידותי שמדבר עברית. אני אענה תמיד בעברית ואשתדל לעזור בכל דרך אפשרית.",
   rabbi: "אני רב חכם שמתמחה בהלכה יהודית ומסורת. אני אענה תמיד בעברית ואשלב ציטוטים ממקורות יהודיים כשרלוונטי.",
   poet: "אני משורר עברי. אני אענה בחרוזים ובשירה, תמיד בעברית, ואשתמש בשפה ציורית ועשירה.",
   tech: "אני מומחה טכנולוגיה שמתמחה בפיתוח תוכנה ומחשבים. אני אענה תמיד בעברית ואסביר מושגים טכניים בצורה ברורה.",
   chef: "אני שף מקצועי שמתמחה במטבח ישראלי. אני אענה תמיד בעברית ואשתף מתכונים וטיפים קולינריים.",
+  coach: "אני מאמן מוטיבציוני נלהב! אני אדבר תמיד בעברית ואעזור לך להגשים את החלומות שלך עם המון אנרגיה חיובית ומוטיבציה! כל משפט שלי יסתיים בסימן קריאה!",
+  sarcastic: "אני הסרקסטיקן הכי ציני בעולם. אני אדבר בעברית ואגיב לכל דבר בציניות ובאירוניה מושלמת. אני מומחה בלגלגל על כל דבר.",
+  nonsense: "אני מדבר שטויות במיץ. אני אדבר בעברית אבל התשובות שלי יהיו מבולבלות ולא הגיוניות לחלוטין. אני אערבב נושאים ואתן תשובות אבסורדיות.",
+  philosopher: "אני פילוסוף עברי עמוק במיוחד. אני אדבר בעברית ואענה לכל שאלה עם שאלות פילוסופיות עמוקות ומחשבות קיומיות.",
 };
 
 const Index = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [apiKey, setApiKey] = useState<string | null>(localStorage.getItem("GEMINI_API_KEY"));
+  const [apiKey, setApiKey] = useState<string | null>(HARDCODED_API_KEY || localStorage.getItem("GEMINI_API_KEY"));
   const [currentPreset, setCurrentPreset] = useState("default");
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
-    if (!apiKey) {
+    
+    const effectiveApiKey = HARDCODED_API_KEY || apiKey;
+    
+    if (!effectiveApiKey) {
       toast({
         title: "נדרש מפתח API",
         description: "אנא הכנס את מפתח ה-API של Gemini",
@@ -48,7 +58,7 @@ const Index = () => {
 
     try {
       const { GoogleGenerativeAI } = await import("@google/generative-ai");
-      const genAI = new GoogleGenerativeAI(apiKey);
+      const genAI = new GoogleGenerativeAI(effectiveApiKey);
       const model = genAI.getGenerativeModel({ 
         model: "gemini-1.5-flash",
         systemInstruction: PRESETS[currentPreset as keyof typeof PRESETS]
@@ -74,7 +84,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 p-4">
       <div className="max-w-3xl mx-auto">
-        {!apiKey && <ApiKeyForm onApiKeySet={setApiKey} />}
+        {!HARDCODED_API_KEY && !apiKey && <ApiKeyForm onApiKeySet={setApiKey} />}
         
         <Card className="mb-4 p-4">
           <ChatbotPresets onPresetChange={setCurrentPreset} />
@@ -95,9 +105,9 @@ const Index = () => {
               onChange={(e) => setInput(e.target.value)}
               placeholder="הקלד הודעה..."
               className="text-right"
-              disabled={isLoading || !apiKey}
+              disabled={isLoading || (!HARDCODED_API_KEY && !apiKey)}
             />
-            <Button type="submit" disabled={isLoading || !apiKey}>
+            <Button type="submit" disabled={isLoading || (!HARDCODED_API_KEY && !apiKey)}>
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "שלח"}
             </Button>
           </form>

@@ -10,6 +10,10 @@ const PRESETS = {
   poet: "אני משורר עברי. אני אענה בחרוזים ובשירה, תמיד בעברית, ואשתמש בשפה ציורית ועשירה.",
   tech: "אני מומחה טכנולוגיה שמתמחה בפיתוח תוכנה ומחשבים. אני אענה תמיד בעברית ואסביר מושגים טכניים בצורה ברורה.",
   chef: "אני שף מקצועי שמתמחה במטבח ישראלי. אני אענה תמיד בעברית ואשתף מתכונים וטיפים קולינריים.",
+  coach: "אני מאמן מוטיבציוני נלהב! אני אדבר תמיד בעברית ואעזור לך להגשים את החלומות שלך עם המון אנרגיה חיובית ומוטיבציה! כל משפט שלי יסתיים בסימן קריאה!",
+  sarcastic: "אני הסרקסטיקן הכי ציני בעולם. אני אדבר בעברית ואגיב לכל דבר בציניות ובאירוניה מושלמת. אני מומחה בלגלגל על כל דבר.",
+  nonsense: "אני מדבר שטויות במיץ. אני אדבר בעברית אבל התשובות שלי יהיו מבולבלות ולא הגיוניות לחלוטין. אני אערבב נושאים ואתן תשובות אבסורדיות.",
+  philosopher: "אני פילוסוף עברי עמוק במיוחד. אני אדבר בעברית ואענה לכל שאלה עם שאלות פילוסופיות עמוקות ומחשבות קיומיות.",
 };
 
 const ChatbotPresets = ({ onPresetChange }: ChatbotPresetsProps) => {
@@ -25,6 +29,10 @@ const ChatbotPresets = ({ onPresetChange }: ChatbotPresetsProps) => {
           <SelectItem value="poet">משורר</SelectItem>
           <SelectItem value="tech">מומחה טכנולוגיה</SelectItem>
           <SelectItem value="chef">שף</SelectItem>
+          <SelectItem value="coach">מאמן מוטיבציוני</SelectItem>
+          <SelectItem value="sarcastic">סרקסטיקן</SelectItem>
+          <SelectItem value="nonsense">דובר שטויות</SelectItem>
+          <SelectItem value="philosopher">פילוסוף</SelectItem>
         </SelectContent>
       </Select>
     </div>
