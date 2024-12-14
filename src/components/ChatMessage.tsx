@@ -1,16 +1,8 @@
-import { useEffect, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { cn } from "@/lib/utils";
 import { Loader2, Copy, Check } from 'lucide-react';
-import dynamic from 'next/dynamic';
-
-const ReactMarkdown = dynamic(() => import('react-markdown'), {
-  loading: () => <div>Loading...</div>,
-  ssr: false
-});
-
-const remarkGfm = dynamic(() => import('remark-gfm'), {
-  ssr: false
-});
+import { useState } from 'react';
 
 interface ChatMessageProps {
   message: {
@@ -76,10 +68,10 @@ const ChatMessage = ({ message, isLoading }: ChatMessageProps) => {
                 "[&>*+*]:mt-4"
               )}
               components={{
-                pre: ({ node, ...props }) => (
+                pre: ({ node, ...props }: any) => (
                   <pre className="bg-black/10 dark:bg-white/10 p-2 rounded-lg overflow-auto" {...props} />
                 ),
-                code: ({ node, inline, ...props }) => (
+                code: ({ node, inline, ...props }: any) => (
                   inline ? 
                     <code className="bg-black/10 dark:bg-white/10 px-1 rounded" {...props} /> :
                     <code {...props} />

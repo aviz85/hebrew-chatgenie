@@ -9,6 +9,7 @@ import ApiKeyForm from "@/components/ApiKeyForm";
 import ChatbotPresets from "@/components/ChatbotPresets";
 import { PRESET_INSTRUCTIONS } from "@/components/ChatbotPresets";
 import SettingsDialog from "@/components/SettingsDialog";
+import { HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 
 interface Message {
   role: "user" | "model";
@@ -60,6 +61,15 @@ const Index = () => {
       inputRef.current?.focus();
     }, 100);
   }, [currentPreset]);
+
+  // Add useEffect for focus after clear
+  useEffect(() => {
+    if (messages.length === 0) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  }, [messages.length]);
 
   const handleApiKeyError = (error: any) => {
     // Common rate limit indicators from Gemini API
@@ -133,20 +143,20 @@ const Index = () => {
         },
         safetySettings: [
           {
-            category: "HARM_CATEGORY_HARASSMENT",
-            threshold: "BLOCK_NONE",
+            category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+            threshold: HarmBlockThreshold.BLOCK_NONE,
           },
           {
-            category: "HARM_CATEGORY_HATE_SPEECH",
-            threshold: "BLOCK_NONE",
+            category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+            threshold: HarmBlockThreshold.BLOCK_NONE,
           },
           {
-            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-            threshold: "BLOCK_NONE",
+            category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+            threshold: HarmBlockThreshold.BLOCK_NONE,
           },
           {
-            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-            threshold: "BLOCK_NONE",
+            category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+            threshold: HarmBlockThreshold.BLOCK_NONE,
           },
         ],
       });
@@ -198,7 +208,12 @@ const Index = () => {
   };
 
   const handleClear = () => {
-    setMessages([]);
+    // First focus the input
+    inputRef.current?.focus();
+    // Then clear messages after a small delay
+    setTimeout(() => {
+      setMessages([]);
+    }, 0);
   };
 
   const handlePresetChange = (preset: string) => {
@@ -275,7 +290,7 @@ const Index = () => {
               onClick={handleClear}
               disabled={messages.length === 0}
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="h-4 w-4" />
             </Button>
             <Button type="submit" disabled={isLoading || (!HARDCODED_API_KEY && !apiKey)}>
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "שלח"}
