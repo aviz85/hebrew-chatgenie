@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -35,6 +35,7 @@ const Index = () => {
   const [apiKey, setApiKey] = useState<string | null>(HARDCODED_API_KEY || localStorage.getItem("GEMINI_API_KEY"));
   const [currentPreset, setCurrentPreset] = useState("default");
   const { toast } = useToast();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,6 +70,7 @@ const Index = () => {
       const text = response.text();
 
       setMessages((prev) => [...prev, { role: "model", content: text }]);
+      inputRef.current?.focus();
     } catch (error) {
       toast({
         title: "שגיאה",
@@ -80,6 +82,11 @@ const Index = () => {
       setIsLoading(false);
     }
   };
+
+  // Focus input on mount
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 p-4">
@@ -101,11 +108,12 @@ const Index = () => {
 
           <form onSubmit={handleSubmit} className="flex gap-2" dir="rtl">
             <Input
+              ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="הקלד הודעה..."
               className="text-right"
-              disabled={isLoading || (!HARDCODED_API_KEY && !apiKey)}
+              disabled={!HARDCODED_API_KEY && !apiKey}
             />
             <Button type="submit" disabled={isLoading || (!HARDCODED_API_KEY && !apiKey)}>
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "שלח"}
