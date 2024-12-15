@@ -7,6 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { usePresetsStore } from "@/store/presets";
+import { AIPromptGenerator } from "@/components/AIPromptGenerator";
+
+const HARDCODED_API_KEY = "AIzaSyCAUPJ55jlcwjGufOZACvEpVgdfVapRT_I";
 
 export const PRESET_INSTRUCTIONS = {
   default: "אני עוזר ידידותי שמדבר עברית. אני אענה תמיד בעברית ואשתדל לעזור בכל דרך אפשרית.",
@@ -19,7 +22,7 @@ export const PRESET_INSTRUCTIONS = {
   nonsense: "אני מדבר שטויות במיץ! אני אענה תמיד בעברית ואשתמש במילים מומצאות ובהיגיון מעוות.",
   philosopher: "אני פילוסוף עמוק מחשבה. אני אענה תמיד בעברית ואעלה שאלות קיומיות ורעיונות מופשטים.",
   yekke: "אני יקה דייקן להפליא. אני אענה תמיד בעברית, אקפיד על דיוק ופרטים, ואתלונן על חוסר סדר.",
-  sabra: "אני צבר ישראלי טיפוסי. אני אדבר בסלנג, אהיה ישיר מאוד, ואשתמש בביטויים ישראליים.",
+  sabra: "אני צבר ישראי טיפוסי. אני אדבר בסלנג, אהיה ישיר מאוד, ואשתמש בביטויים ישראליים.",
   time_traveler: "אני מטייל בזמן מהעתיד. אני אענה תמיד בעברית ואספר על העולם בעתיד.",
   alien: "אני חייזר שרק הגיע לכדור הארץ. אני אענה תמיד בעברית ואתפלא מדברים מובנים מאליהם.",
   grandma: "אני סבתא יהודייה טיפוסית. אני אדבר בחום ואהבה, אדאג שכולם אוכלים מספיק, ואספר סיפורים מהעבר.",
@@ -124,14 +127,25 @@ const ChatbotPresets = ({ onPresetChange }: ChatbotPresetsProps) => {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="instruction">הנחיות לדמות</Label>
-              <Textarea
-                id="instruction"
-                value={newPresetInstruction}
-                onChange={(e) => setNewPresetInstruction(e.target.value)}
-                placeholder="תאר את הדמות והסגנון שלה..."
-                className="h-32"
-              />
+              <div className="flex items-center justify-between">
+                <Label htmlFor="instruction">הנחיות לדמות</Label>
+                <AIPromptGenerator
+                  label={newPresetLabel}
+                  currentText={newPresetInstruction}
+                  onGenerated={setNewPresetInstruction}
+                  apiKey={HARDCODED_API_KEY || localStorage.getItem("GEMINI_API_KEY") || ""}
+                  className="relative top-0 right-0"
+                />
+              </div>
+              <div className="relative">
+                <Textarea
+                  id="instruction"
+                  value={newPresetInstruction}
+                  onChange={(e) => setNewPresetInstruction(e.target.value)}
+                  placeholder="תאר את הדמות והסגנון שלה..."
+                  className="h-32"
+                />
+              </div>
             </div>
             <Button onClick={handleAddPreset} disabled={!newPresetLabel || !newPresetInstruction}>
               הוסף דמות

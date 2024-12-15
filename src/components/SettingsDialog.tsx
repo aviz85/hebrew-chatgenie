@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { usePresetsStore, type CustomPreset } from "@/store/presets";
+import { AIPromptGenerator } from "@/components/AIPromptGenerator";
 import { cn } from "@/lib/utils";
 
 interface SettingsDialogProps {
@@ -63,6 +64,8 @@ const SettingsDialog = ({ onApiKeySet, currentApiKey }: SettingsDialogProps) => 
     setNewPresetLabel(preset.label);
     setNewPresetInstruction(preset.instruction);
   };
+
+  const HARDCODED_API_KEY = "AIzaSyCAUPJ55jlcwjGufOZACvEpVgdfVapRT_I";
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -164,13 +167,24 @@ const SettingsDialog = ({ onApiKeySet, currentApiKey }: SettingsDialogProps) => 
                   />
                 </div>
                 <div className="flex-1 flex flex-col min-h-0">
-                  <Label>הנחיות לדמות</Label>
-                  <Textarea
-                    value={newPresetInstruction}
-                    onChange={(e) => setNewPresetInstruction(e.target.value)}
-                    placeholder="כתוב כאן את ההנחיות לדמות - איך היא צריכה להתנהג ולדבר..."
-                    className="mt-1.5 flex-1 resize-none h-[150px] md:h-[280px]"
-                  />
+                  <div className="flex items-center justify-between">
+                    <Label>הנחיות לדמות</Label>
+                    <AIPromptGenerator
+                      label={newPresetLabel}
+                      currentText={newPresetInstruction}
+                      onGenerated={setNewPresetInstruction}
+                      apiKey={HARDCODED_API_KEY || currentApiKey || ""}
+                      className="relative top-0 right-0"
+                    />
+                  </div>
+                  <div className="relative flex-1">
+                    <Textarea
+                      value={newPresetInstruction}
+                      onChange={(e) => setNewPresetInstruction(e.target.value)}
+                      placeholder="כתוב כאן את ההנחיות לדמות - איך היא צריכה להתנהג ולדבר..."
+                      className="mt-1.5 flex-1 resize-none h-[150px] md:h-[280px]"
+                    />
+                  </div>
                 </div>
                 <Button 
                   onClick={handleAddPreset} 
