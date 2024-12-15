@@ -71,19 +71,19 @@ const SettingsDialog = ({ onApiKeySet, currentApiKey }: SettingsDialogProps) => 
           <Settings className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]" dir="rtl">
+      <DialogContent className="sm:max-w-[600px] max-h-[95vh] overflow-hidden flex flex-col" dir="rtl">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold">הגדרות</DialogTitle>
         </DialogHeader>
         
-        <Tabs defaultValue="api" className="mt-4">
+        <Tabs defaultValue="api" className="flex-1 overflow-hidden flex flex-col">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="api">מפתח API</TabsTrigger>
             <TabsTrigger value="mentors">מנטורים מותאמים אישית</TabsTrigger>
           </TabsList>
 
           {/* API Key Tab */}
-          <TabsContent value="api" className="mt-4">
+          <TabsContent value="api" className="mt-4 flex-1">
             <div className="space-y-3">
               <div>
                 <Label htmlFor="apiKey">מפתח API של Gemini</Label>
@@ -103,10 +103,10 @@ const SettingsDialog = ({ onApiKeySet, currentApiKey }: SettingsDialogProps) => 
           </TabsContent>
 
           {/* Mentors Tab */}
-          <TabsContent value="mentors" className="mt-4">
-            <div className="grid grid-cols-[280px,1fr] gap-6">
+          <TabsContent value="mentors" className="mt-4 flex-1 overflow-hidden flex flex-col">
+            <div className="grid md:grid-cols-[280px,1fr] gap-6 flex-1 overflow-hidden">
               {/* Mentors List */}
-              <div>
+              <div className="flex flex-col min-h-0">
                 <div className="flex items-center justify-between mb-2">
                   <Label>המנטורים שלי</Label>
                   <Button 
@@ -122,7 +122,7 @@ const SettingsDialog = ({ onApiKeySet, currentApiKey }: SettingsDialogProps) => 
                     + חדש
                   </Button>
                 </div>
-                <ScrollArea className="h-[400px] pr-4">
+                <ScrollArea className="flex-1 pr-4 h-[200px] md:h-[400px]">
                   <div className="space-y-2">
                     {presets.map((preset) => (
                       <div 
@@ -153,7 +153,7 @@ const SettingsDialog = ({ onApiKeySet, currentApiKey }: SettingsDialogProps) => 
               </div>
 
               {/* Edit Form */}
-              <div className="space-y-4">
+              <div className="space-y-4 min-h-0 flex flex-col">
                 <div>
                   <Label>שם המנטור</Label>
                   <Input
@@ -163,13 +163,13 @@ const SettingsDialog = ({ onApiKeySet, currentApiKey }: SettingsDialogProps) => 
                     className="mt-1.5"
                   />
                 </div>
-                <div>
+                <div className="flex-1 flex flex-col min-h-0">
                   <Label>הנחיות למנטור</Label>
                   <Textarea
                     value={newPresetInstruction}
                     onChange={(e) => setNewPresetInstruction(e.target.value)}
                     placeholder="כתוב כאן את ההנחיות למנטור - איך הוא צריך להתנהג ולדבר..."
-                    className="mt-1.5 h-[280px] resize-none"
+                    className="mt-1.5 flex-1 resize-none h-[150px] md:h-[280px]"
                   />
                 </div>
                 <Button 
