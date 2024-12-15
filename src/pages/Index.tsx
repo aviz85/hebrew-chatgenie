@@ -231,7 +231,7 @@ const Index = () => {
       <div className="max-w-3xl mx-auto">
         {!HARDCODED_API_KEY && !apiKey && <ApiKeyForm onApiKeySet={setApiKey} />}
         
-        <Card className="mb-4 p-4 h-[calc(100vh-2rem)]">
+        <Card className="mb-4 p-4 h-[70vh]">
           <div className="flex justify-between items-center mb-4">
             <ChatbotPresets onPresetChange={handlePresetChange} />
             <div className="flex gap-2">
@@ -251,7 +251,7 @@ const Index = () => {
             </div>
           </div>
           <div 
-            className="space-y-4 mb-4 h-[calc(100vh-12rem)] overflow-y-auto chat-container" 
+            className="space-y-4 mb-4 h-[calc(70vh-8rem)] overflow-y-auto chat-container" 
             dir="rtl"
           >
             {messages.map((message, index) => (
