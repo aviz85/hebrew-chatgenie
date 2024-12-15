@@ -10,6 +10,7 @@ import ChatbotPresets from "@/components/ChatbotPresets";
 import { PRESET_INSTRUCTIONS } from "@/components/ChatbotPresets";
 import SettingsDialog from "@/components/SettingsDialog";
 import { HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
+import { customPresets } from "@/components/ChatbotPresets";
 
 interface Message {
   role: "user" | "model";
@@ -117,9 +118,14 @@ const Index = () => {
     try {
       const { GoogleGenerativeAI } = await import("@google/generative-ai");
       const genAI = new GoogleGenerativeAI(effectiveApiKey);
+      const customPreset = customPresets.find(preset => preset.id === currentPreset);
+      const systemInstruction = customPreset ? 
+        customPreset.instruction : 
+        PRESET_INSTRUCTIONS[currentPreset as keyof typeof PRESET_INSTRUCTIONS];
+
       const model = genAI.getGenerativeModel({ 
         model: "gemini-2.0-flash-exp",
-        systemInstruction: PRESET_INSTRUCTIONS[currentPreset as keyof typeof PRESET_INSTRUCTIONS],
+        systemInstruction,
         generationConfig: {
           maxOutputTokens: 1000,
           temperature: 0.7,
