@@ -79,7 +79,7 @@ const SettingsDialog = ({ onApiKeySet, currentApiKey }: SettingsDialogProps) => 
         <Tabs defaultValue="api" className="flex-1 overflow-hidden flex flex-col">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="api">מפתח API</TabsTrigger>
-            <TabsTrigger value="mentors">מנטורים מותאמים אישית</TabsTrigger>
+            <TabsTrigger value="characters">דמויות מותאמות אישית</TabsTrigger>
           </TabsList>
 
           {/* API Key Tab */}
@@ -102,13 +102,13 @@ const SettingsDialog = ({ onApiKeySet, currentApiKey }: SettingsDialogProps) => 
             </div>
           </TabsContent>
 
-          {/* Mentors Tab */}
-          <TabsContent value="mentors" className="mt-4 flex-1 overflow-hidden flex flex-col">
+          {/* Characters Tab */}
+          <TabsContent value="characters" className="mt-4 flex-1 overflow-hidden flex flex-col">
             <div className="grid md:grid-cols-[280px,1fr] gap-6 flex-1 overflow-hidden">
-              {/* Mentors List */}
+              {/* Characters List */}
               <div className="flex flex-col min-h-0">
                 <div className="flex items-center justify-between mb-2">
-                  <Label>המנטורים שלי</Label>
+                  <Label>הדמויות שלי</Label>
                   <Button 
                     variant="ghost" 
                     size="sm"
@@ -155,20 +155,20 @@ const SettingsDialog = ({ onApiKeySet, currentApiKey }: SettingsDialogProps) => 
               {/* Edit Form */}
               <div className="space-y-4 min-h-0 flex flex-col">
                 <div>
-                  <Label>שם המנטור</Label>
+                  <Label>שם הדמות</Label>
                   <Input
                     value={newPresetLabel}
                     onChange={(e) => setNewPresetLabel(e.target.value)}
-                    placeholder="תן שם למנטור..."
+                    placeholder="תן שם לדמות..."
                     className="mt-1.5"
                   />
                 </div>
                 <div className="flex-1 flex flex-col min-h-0">
-                  <Label>הנחיות למנטור</Label>
+                  <Label>הנחיות לדמות</Label>
                   <Textarea
                     value={newPresetInstruction}
                     onChange={(e) => setNewPresetInstruction(e.target.value)}
-                    placeholder="כתוב כאן את ההנחיות למנטור - איך הוא צריך להתנהג ולדבר..."
+                    placeholder="כתוב כאן את ההנחיות לדמות - איך היא צריכה להתנהג ולדבר..."
                     className="mt-1.5 flex-1 resize-none h-[150px] md:h-[280px]"
                   />
                 </div>
@@ -177,7 +177,7 @@ const SettingsDialog = ({ onApiKeySet, currentApiKey }: SettingsDialogProps) => 
                   disabled={!newPresetLabel || !newPresetInstruction}
                   className="w-full"
                 >
-                  {editingPreset ? "שמור שינויים" : "צור מנטור"}
+                  {editingPreset ? "שמור שינויים" : "צור דמות"}
                 </Button>
               </div>
             </div>

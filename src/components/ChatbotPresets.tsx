@@ -87,7 +87,7 @@ const ChatbotPresets = ({ onPresetChange }: ChatbotPresetsProps) => {
     <div className="flex gap-2 items-center">
       <Select onValueChange={handlePresetChange} value={selectedPresetId}>
         <SelectTrigger className="w-[200px]">
-          <SelectValue placeholder="בחר אישיות" />
+          <SelectValue placeholder="בחר דמות" />
         </SelectTrigger>
         <SelectContent>
           {Object.entries(PRESET_LABELS).map(([key, label]) => (
@@ -111,11 +111,11 @@ const ChatbotPresets = ({ onPresetChange }: ChatbotPresetsProps) => {
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]" dir="rtl">
           <DialogHeader>
-            <DialogTitle>הוספת אופי חדש</DialogTitle>
+            <DialogTitle>הוספת דמות חדשה</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="name">שם האופי</Label>
+              <Label htmlFor="name">שם הדמות</Label>
               <Input
                 id="name"
                 value={newPresetLabel}
@@ -124,17 +124,17 @@ const ChatbotPresets = ({ onPresetChange }: ChatbotPresetsProps) => {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="instruction">הנחיות לצ'אטבוט</Label>
+              <Label htmlFor="instruction">הנחיות לדמות</Label>
               <Textarea
                 id="instruction"
                 value={newPresetInstruction}
                 onChange={(e) => setNewPresetInstruction(e.target.value)}
-                placeholder="תאר את האופי והסגנון הרצוי..."
+                placeholder="תאר את הדמות והסגנון שלה..."
                 className="h-32"
               />
             </div>
             <Button onClick={handleAddPreset} disabled={!newPresetLabel || !newPresetInstruction}>
-              הוסף
+              הוסף דמות
             </Button>
           </div>
         </DialogContent>
