@@ -227,12 +227,12 @@ const Index = () => {
   };
 
   return (
-    <div className="h-[100dvh] md:min-h-screen bg-background p-4 md:p-4 flex flex-col">
-      <div className="max-w-3xl mx-auto w-full flex-1">
+    <div className="h-[100dvh] bg-background p-4">
+      <div className="max-w-3xl mx-auto h-full">
         {!HARDCODED_API_KEY && !apiKey && <ApiKeyForm onApiKeySet={setApiKey} />}
         
-        <Card className="h-full p-4 flex flex-col">
-          <div className="flex justify-between items-center mb-4">
+        <Card className="h-[calc(100dvh-2rem)] md:h-[calc(100vh-2rem)] p-4 flex flex-col">
+          <div className="flex justify-between items-center mb-4 flex-shrink-0">
             <ChatbotPresets onPresetChange={handlePresetChange} />
             <div className="flex gap-2">
               <Button
@@ -251,7 +251,7 @@ const Index = () => {
             </div>
           </div>
           <div 
-            className="flex-1 overflow-y-auto chat-container mb-4" 
+            className="flex-1 min-h-0 overflow-y-auto chat-container space-y-4 mb-4" 
             dir="rtl"
           >
             {messages.map((message, index) => (
@@ -264,7 +264,7 @@ const Index = () => {
             <div ref={messagesEndRef} />
           </div>
 
-          <form onSubmit={handleSubmit} className="flex gap-2" dir="rtl">
+          <form onSubmit={handleSubmit} className="flex gap-2 flex-shrink-0" dir="rtl">
             <Input
               ref={inputRef}
               value={input}
