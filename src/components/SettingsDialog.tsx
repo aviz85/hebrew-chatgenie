@@ -135,7 +135,13 @@ const SettingsDialog = ({ onApiKeySet, currentApiKey }: SettingsDialogProps) => 
                           "hover:bg-accent/50 transition-colors",
                           editingPreset?.id === preset.id && "bg-accent"
                         )}
-                        onClick={() => handleEditPreset(preset)}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => {
+                          if (editingPreset?.id !== preset.id) {
+                            handleEditPreset(preset);
+                          }
+                        }}
                       >
                         <span className="font-medium truncate">{preset.label}</span>
                         <Button
@@ -145,6 +151,11 @@ const SettingsDialog = ({ onApiKeySet, currentApiKey }: SettingsDialogProps) => 
                           onClick={(e) => {
                             e.stopPropagation();
                             deletePreset(preset.id);
+                            if (editingPreset?.id === preset.id) {
+                              setEditingPreset(null);
+                              setNewPresetLabel("");
+                              setNewPresetInstruction("");
+                            }
                           }}
                         >
                           <X className="h-4 w-4" />
