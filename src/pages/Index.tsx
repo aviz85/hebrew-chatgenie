@@ -10,7 +10,7 @@ import ChatbotPresets from "@/components/ChatbotPresets";
 import { PRESET_INSTRUCTIONS } from "@/components/ChatbotPresets";
 import SettingsDialog from "@/components/SettingsDialog";
 import { HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
-import { customPresets } from "@/components/ChatbotPresets";
+import { usePresetsStore } from "@/store/presets";
 
 interface Message {
   role: "user" | "model";
@@ -33,10 +33,15 @@ const Index = () => {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [apiKey, setApiKey] = useState<string | null>(HARDCODED_API_KEY || localStorage.getItem("GEMINI_API_KEY"));
-  const [currentPreset, setCurrentPreset] = useState("default");
   const { toast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const { presets, selectedPresetId, setSelectedPresetId, loadPresets } = usePresetsStore();
+
+  useEffect(() => {
+    loadPresets();
+  }, [loadPresets]);
 
   const scrollToBottom = () => {
     const chatContainer = document.querySelector('.chat-container');
@@ -51,7 +56,7 @@ const Index = () => {
       inputRef.current?.focus();
     }, 100);
     return () => clearTimeout(timeout);
-  }, [currentPreset, messages.length]);
+  }, [selectedPresetId, messages.length]);
 
   useEffect(() => {
     scrollToBottom();
@@ -118,10 +123,10 @@ const Index = () => {
     try {
       const { GoogleGenerativeAI } = await import("@google/generative-ai");
       const genAI = new GoogleGenerativeAI(effectiveApiKey);
-      const customPreset = customPresets.find(preset => preset.id === currentPreset);
+      const customPreset = presets.find(preset => preset.id === selectedPresetId);
       const systemInstruction = customPreset ? 
         customPreset.instruction : 
-        PRESET_INSTRUCTIONS[currentPreset as keyof typeof PRESET_INSTRUCTIONS];
+        PRESET_INSTRUCTIONS[selectedPresetId as keyof typeof PRESET_INSTRUCTIONS];
 
       const model = genAI.getGenerativeModel({ 
         model: "gemini-2.0-flash-exp",
@@ -209,7 +214,7 @@ const Index = () => {
   };
 
   const handlePresetChange = (preset: string) => {
-    setCurrentPreset(preset);
+    setSelectedPresetId(preset);
     setTimeout(() => {
       inputRef.current?.focus();
     }, 100);

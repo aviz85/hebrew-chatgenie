@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Settings, Plus, X, Pencil } from "lucide-react";
+import { Settings, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,8 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { customPresets, type CustomPreset } from "./ChatbotPresets";
-import { getCustomPresets, saveCustomPreset, deleteCustomPreset } from "./ChatbotPresets";
+import { usePresetsStore, type CustomPreset } from "@/store/presets";
 import { cn } from "@/lib/utils";
 
 interface SettingsDialogProps {
@@ -19,16 +18,17 @@ interface SettingsDialogProps {
 const SettingsDialog = ({ onApiKeySet, currentApiKey }: SettingsDialogProps) => {
   const [apiKey, setApiKey] = useState(currentApiKey || "");
   const [open, setOpen] = useState(false);
-  const [localPresets, setLocalPresets] = useState<CustomPreset[]>([]);
   const [editingPreset, setEditingPreset] = useState<CustomPreset | null>(null);
   const [newPresetLabel, setNewPresetLabel] = useState("");
   const [newPresetInstruction, setNewPresetInstruction] = useState("");
 
+  const { presets, loadPresets, addPreset, updatePreset, deletePreset } = usePresetsStore();
+
   useEffect(() => {
     if (open) {
-      getCustomPresets().then(setLocalPresets);
+      loadPresets();
     }
-  }, [open]);
+  }, [open, loadPresets]);
 
   const handleSave = () => {
     if (apiKey.trim()) {
@@ -47,19 +47,15 @@ const SettingsDialog = ({ onApiKeySet, currentApiKey }: SettingsDialogProps) => 
       instruction: newPresetInstruction,
     };
 
-    await saveCustomPreset(newPreset);
-    setLocalPresets(prev => {
-      const filtered = prev.filter(p => p.id !== newPreset.id);
-      return [...filtered, newPreset];
-    });
+    if (editingPreset) {
+      await updatePreset(newPreset);
+    } else {
+      await addPreset(newPreset);
+    }
+
     setNewPresetLabel("");
     setNewPresetInstruction("");
     setEditingPreset(null);
-  };
-
-  const handleDeletePreset = async (id: string) => {
-    await deleteCustomPreset(id);
-    setLocalPresets(prev => prev.filter(preset => preset.id !== id));
   };
 
   const handleEditPreset = (preset: CustomPreset) => {
@@ -128,7 +124,7 @@ const SettingsDialog = ({ onApiKeySet, currentApiKey }: SettingsDialogProps) => 
                 </div>
                 <ScrollArea className="h-[400px] pr-4">
                   <div className="space-y-2">
-                    {localPresets.map((preset) => (
+                    {presets.map((preset) => (
                       <div 
                         key={preset.id} 
                         className={cn(
@@ -145,7 +141,7 @@ const SettingsDialog = ({ onApiKeySet, currentApiKey }: SettingsDialogProps) => 
                           className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDeletePreset(preset.id);
+                            deletePreset(preset.id);
                           }}
                         >
                           <X className="h-4 w-4" />
