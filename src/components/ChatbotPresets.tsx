@@ -9,8 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { usePresetsStore } from "@/store/presets";
 import { AIPromptGenerator } from "@/components/AIPromptGenerator";
 
-const HARDCODED_API_KEY = "AIzaSyCAUPJ55jlcwjGufOZACvEpVgdfVapRT_I";
-
 export const PRESET_INSTRUCTIONS = {
   default: "אני עוזר ידידותי שמדבר עברית. אני אענה תמיד בעברית ואשתדל לעזור בכל דרך אפשרית.",
   rabbi: "אני רב חכם שמתמחה בהלכה יהודית ומסורת. אני אענה תמיד בעברית ואשלב ציטוטים ממקורות יהודיים כשרלוונטי.",
@@ -133,7 +131,7 @@ const ChatbotPresets = ({ onPresetChange }: ChatbotPresetsProps) => {
                   label={newPresetLabel}
                   currentText={newPresetInstruction}
                   onGenerated={setNewPresetInstruction}
-                  apiKey={HARDCODED_API_KEY || localStorage.getItem("GEMINI_API_KEY") || ""}
+                  apiKey={localStorage.getItem("GEMINI_API_KEY") || ""}
                   className="relative top-0 right-0"
                 />
               </div>

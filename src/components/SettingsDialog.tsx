@@ -65,8 +65,6 @@ const SettingsDialog = ({ onApiKeySet, currentApiKey }: SettingsDialogProps) => 
     setNewPresetInstruction(preset.instruction);
   };
 
-  const HARDCODED_API_KEY = "AIzaSyCAUPJ55jlcwjGufOZACvEpVgdfVapRT_I";
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -184,7 +182,7 @@ const SettingsDialog = ({ onApiKeySet, currentApiKey }: SettingsDialogProps) => 
                       label={newPresetLabel}
                       currentText={newPresetInstruction}
                       onGenerated={setNewPresetInstruction}
-                      apiKey={HARDCODED_API_KEY || currentApiKey || ""}
+                      apiKey={currentApiKey || ""}
                       className="relative top-0 right-0"
                     />
                   </div>

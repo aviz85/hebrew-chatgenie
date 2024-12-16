@@ -11,15 +11,13 @@ import { PRESET_INSTRUCTIONS } from "@/components/ChatbotPresets";
 import SettingsDialog from "@/components/SettingsDialog";
 import { HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 import { usePresetsStore } from "@/store/presets";
+import { config } from "@/config/env";
 
 interface Message {
   role: "user" | "model";
   content: string;
   parts: { text: string }[];
 }
-
-// You can replace this with your API key for testing
-const HARDCODED_API_KEY = "AIzaSyCAUPJ55jlcwjGufOZACvEpVgdfVapRT_I"
 
 const formatMessagesForAPI = (messages: Message[]) => {
   return messages.map(msg => ({
@@ -32,7 +30,7 @@ const Index = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [apiKey, setApiKey] = useState<string | null>(HARDCODED_API_KEY || localStorage.getItem("GEMINI_API_KEY"));
+  const [apiKey, setApiKey] = useState<string | null>(config.defaultApiKey || localStorage.getItem("GEMINI_API_KEY"));
   const { toast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -99,7 +97,7 @@ const Index = () => {
     e.preventDefault();
     if (!input.trim()) return;
     
-    const effectiveApiKey = HARDCODED_API_KEY || apiKey;
+    const effectiveApiKey = config.defaultApiKey || apiKey;
     
     if (!effectiveApiKey) {
       toast({
@@ -240,7 +238,7 @@ const Index = () => {
   return (
     <div className="h-[100dvh] bg-background p-4">
       <div className="max-w-3xl mx-auto h-full">
-        {!HARDCODED_API_KEY && !apiKey && <ApiKeyForm onApiKeySet={setApiKey} />}
+        {!config.defaultApiKey && !apiKey && <ApiKeyForm onApiKeySet={setApiKey} />}
         
         <Card className="h-[calc(100dvh-2rem)] md:h-[calc(100vh-2rem)] p-4 flex flex-col">
           <div className="flex justify-between items-center mb-4 flex-shrink-0">
@@ -282,7 +280,7 @@ const Index = () => {
               onChange={(e) => setInput(e.target.value)}
               placeholder="הקלד הודעה..."
               className="text-right"
-              disabled={!HARDCODED_API_KEY && !apiKey}
+              disabled={!config.defaultApiKey && !apiKey}
             />
             <Button 
               variant="destructive"
@@ -292,7 +290,7 @@ const Index = () => {
             >
               <Trash2 className="h-4 w-4" />
             </Button>
-            <Button type="submit" disabled={isLoading || (!HARDCODED_API_KEY && !apiKey)}>
+            <Button type="submit" disabled={isLoading || (!config.defaultApiKey && !apiKey)}>
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "שלח"}
             </Button>
           </form>
